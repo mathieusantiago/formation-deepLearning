@@ -1,4 +1,4 @@
-stateDev = True
+stateDev = False
 
 import pandas as pd
 import numpy as np
@@ -27,7 +27,7 @@ def devState():
     if stateDev:
         return plt.show()
     else:
-        return print('_________ devState not display graph  _________')
+        return print('  devState not display graph ')
     
 
 def messagePrint(message):
@@ -42,13 +42,15 @@ path = 'DATA/fake_reg.csv'
 abs_path = os.path.abspath(path)
 df = pd.read_csv(abs_path)
 
+messagePrint('# START !!!')
+
 # Afficher le jeu de données
-messagePrint('_________ # Afficher le jeu de données _________')
+messagePrint('# Afficher le jeu de données')
 print(df.head())
 
 # Afficher le graphique du jeu de données
 sns.pairplot(df)
-messagePrint('_________ # Afficher le graphique du jeu de données _________')
+messagePrint('# Afficher le graphique du jeu de données')
 devState()
 
 # Importer train_test_split de sklearn
@@ -62,7 +64,7 @@ y = df['price'].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Afficher les dimensions des ensembles d'entraînement et de test
-messagePrint('_________ # Afficher les dimensions des ensembles d\'entraînement et de test _________')
+messagePrint('# Afficher les dimensions des ensembles d\'entraînement et de test')
 print(X_train.shape)
 print(X_test.shape)
 
@@ -95,7 +97,7 @@ model.add(Dense(1))
 model.compile(optimizer='rmsprop', loss='mse')
 
 # Entraîner le modèle sur l'ensemble d'entraînement
-messagePrint('_________# démarage de l\'apprentisage ________________')
+messagePrint('# démarage de l\'apprentisage')
 model.fit(X_train, y_train, epochs=250, verbose=0, callbacks=[TqdmProgressCallback(total_epochs=250)])
 
 # Obtenir l'historique des pertes
@@ -104,7 +106,7 @@ loss = model.history.history['loss']
 # Tracer la perte d'entraînement par époque
 sns.lineplot(x=range(len(loss)), y=loss)
 plt.title("Perte sur le set d'entraînement par Epoch");
-messagePrint('_________# Perte sur le set d\'entraînement par Epoch ________________')
+messagePrint('# Perte sur le set d\'entraînement par Epoch')
 devState()
 
 # Évaluer le modèle sur les ensembles d'entraînement et de test
@@ -112,7 +114,7 @@ training_score = model.evaluate(X_train, y_train, verbose=0)
 test_score = model.evaluate(X_test, y_test, verbose=0)
 
 # Afficher les scores
-messagePrint('_________# Afficher les scores _________')
+messagePrint('# Afficher les scores')
 
 print(training_score)
 print(test_score)
@@ -134,7 +136,7 @@ pred_df.columns = ['TestY', 'ModelPred']
 
 # Tracer un nuage de points des vraies valeurs par rapport aux prédictions
 sns.scatterplot(x='TestY', y='ModelPred', data=pred_df)
-messagePrint('_________# PREDICTION GRAPH ________________')
+messagePrint('# PREDICTION GRAPH')
 devState()
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -143,7 +145,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 mae = mean_absolute_error(pred_df['TestY'], pred_df['ModelPred'])
 mse = mean_squared_error(pred_df['TestY'], pred_df['ModelPred'])
 
-messagePrint('_________ # l\'erreur moyenne absolue et l\'erreur quadratique moyenne _________')
+messagePrint('# l\'erreur moyenne absolue et l\'erreur quadratique moyenne')
 print(mae)
 print(mse)
 
@@ -162,6 +164,6 @@ later_model = load_model('../OUTPUT/my_gen_model.h5')
 # Faire une prédiction avec le modèle chargé
 prediction = later_model.predict(new_gem)
 
-messagePrint('_________# PREDICTION ________________')
+messagePrint('# PREDICTION')
 print(prediction)
-messagePrint('______________________________________________')
+messagePrint('# END !!!')
