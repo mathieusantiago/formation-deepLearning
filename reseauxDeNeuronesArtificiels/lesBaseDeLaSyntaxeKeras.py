@@ -1,8 +1,41 @@
+stateDev = True
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from tqdm import tqdm
+from tensorflow.keras.callbacks import Callback
+
+class TqdmProgressCallback(Callback):
+    def __init__(self, total_epochs):
+        self.total_epochs = total_epochs
+        self.progress_bar = None
+
+    def on_train_begin(self, logs=None):
+        self.progress_bar = tqdm(total=self.total_epochs, desc="Training progress", ncols=100)
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.progress_bar.update(1)
+
+    def on_train_end(self, logs=None):
+        self.progress_bar.close()
+
+
+def devState():
+    if stateDev:
+        return plt.show()
+    else:
+        return print('_________ devState not display graph  _________')
+    
+
+def messagePrint(message):
+        print ('\n' * 0)
+        print(message)
+        print ('\n'* 0)
+        
+
 
 # Importer le jeu de données
 path = 'DATA/fake_reg.csv'
@@ -10,12 +43,13 @@ abs_path = os.path.abspath(path)
 df = pd.read_csv(abs_path)
 
 # Afficher le jeu de données
-print('_________ # Afficher le jeu de données _________')
+messagePrint('_________ # Afficher le jeu de données _________')
 print(df.head())
 
 # Afficher le graphique du jeu de données
 sns.pairplot(df)
-plt.show()
+messagePrint('_________ # Afficher le graphique du jeu de données _________')
+devState()
 
 # Importer train_test_split de sklearn
 from sklearn.model_selection import train_test_split
@@ -28,7 +62,7 @@ y = df['price'].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Afficher les dimensions des ensembles d'entraînement et de test
-print('_________ # Afficher les dimensions des ensembles d\'entraînement et de test _________')
+messagePrint('_________ # Afficher les dimensions des ensembles d\'entraînement et de test _________')
 print(X_train.shape)
 print(X_test.shape)
 
@@ -61,7 +95,8 @@ model.add(Dense(1))
 model.compile(optimizer='rmsprop', loss='mse')
 
 # Entraîner le modèle sur l'ensemble d'entraînement
-model.fit(X_train, y_train, epochs=250)
+messagePrint('_________# démarage de l\'apprentisage ________________')
+model.fit(X_train, y_train, epochs=250, verbose=0, callbacks=[TqdmProgressCallback(total_epochs=250)])
 
 # Obtenir l'historique des pertes
 loss = model.history.history['loss']
@@ -69,14 +104,15 @@ loss = model.history.history['loss']
 # Tracer la perte d'entraînement par époque
 sns.lineplot(x=range(len(loss)), y=loss)
 plt.title("Perte sur le set d'entraînement par Epoch");
-plt.show()
+messagePrint('_________# Perte sur le set d\'entraînement par Epoch ________________')
+devState()
 
 # Évaluer le modèle sur les ensembles d'entraînement et de test
 training_score = model.evaluate(X_train, y_train, verbose=0)
 test_score = model.evaluate(X_test, y_test, verbose=0)
 
 # Afficher les scores
-print('_________# Afficher les scores _________')
+messagePrint('_________# Afficher les scores _________')
 
 print(training_score)
 print(test_score)
@@ -98,7 +134,8 @@ pred_df.columns = ['TestY', 'ModelPred']
 
 # Tracer un nuage de points des vraies valeurs par rapport aux prédictions
 sns.scatterplot(x='TestY', y='ModelPred', data=pred_df)
-plt.show()
+messagePrint('_________# PREDICTION GRAPH ________________')
+devState()
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
@@ -106,7 +143,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 mae = mean_absolute_error(pred_df['TestY'], pred_df['ModelPred'])
 mse = mean_squared_error(pred_df['TestY'], pred_df['ModelPred'])
 
-print('_________ # l\'erreur moyenne absolue et l\'erreur quadratique moyenne _________')
+messagePrint('_________ # l\'erreur moyenne absolue et l\'erreur quadratique moyenne _________')
 print(mae)
 print(mse)
 
@@ -125,6 +162,6 @@ later_model = load_model('../OUTPUT/my_gen_model.h5')
 # Faire une prédiction avec le modèle chargé
 prediction = later_model.predict(new_gem)
 
-print('_________________# PREDICTION ________________')
+messagePrint('_________# PREDICTION ________________')
 print(prediction)
-print('______________________________________________')
+messagePrint('______________________________________________')
