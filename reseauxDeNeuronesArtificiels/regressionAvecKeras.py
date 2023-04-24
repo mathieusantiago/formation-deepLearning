@@ -17,7 +17,7 @@ def devState():
         return print('  devState not display graph ')
 
 
-print(df.isnull().sum())
+# print(df.isnull().sum())
 
 df.describe().transpose
 
@@ -59,4 +59,60 @@ sns.scatterplot(x='long', y='lat', data=non_top_1_perc,
 
 plt.figure(figsize=(12, 8))
 sns.boxenplot(x='waterfront', y='price', data=df)
-devState()
+
+df.drop('id', axis=1)
+
+df['date'] = pd.to_datetime(df['date'])
+
+df['year'] = df['date'].apply(lambda date: date.year)
+df['month'] = df['date'].apply(lambda date: date.month)
+
+sns.boxplot(x='month', y='price', data=df)
+
+df.groupby('month').mean()['price'].plot()
+
+df = df.drop('date', axis=1)
+
+# print(df['zipcode'].value_counts())
+
+df = df.drop('zipcode', axis=1)
+
+# print(df['yr_renovated'].value_counts())
+
+# print(df['sqlt_basement'].value_counts())
+
+X = df.drop('price',axis=1)
+y = df['price']
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+model = Sequential()
+
+model.add(Dense(19, activation='relu'))
+model.add(Dense(19, activation='relu'))
+model.add(Dense(19, activation='relu'))
+model.add(Dense(19, activation='relu'))
+
+model.add(Dense(1))
+
+model.compile(optimizer='adam',loss='mse')
+
+model.fit(x=X_train,y=y_train.values,
+          validation_data=(X_test,y_test.values),
+          batch_size=128,epochs=400)
+
+
+# devState()
